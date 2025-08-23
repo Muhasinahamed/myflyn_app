@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../widgets/primary_button.dart';
+
+class InterestCategoryController extends GetxController {
+  final categories = [
+    "F&B",
+    "패션",
+    "육아/키즈",
+    "리빙/인테리어",
+    "뷰티",
+    "여행",
+    "스포츠",
+    "기타",
+  ];
+
+  final selected = <String>{}.obs;
+
+  void toggleCategory(String cat, bool isSelected) {
+    if (isSelected) {
+      selected.add(cat);
+    } else {
+      selected.remove(cat);
+    }
+  }
+
+  bool get hasSelection => selected.isNotEmpty;
+}
+
+class InterestCategoryView extends StatelessWidget {
+  const InterestCategoryView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Inject controller
+    final controller = Get.put(InterestCategoryController());
+
+    return Scaffold(
+      appBar: customAppBarWithTitle("관심 카테고리"),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Obx(
+              () => Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: controller.categories.map((cat) {
+                  final isSelected = controller.selected.contains(cat);
+                  return GestureDetector(
+                    onTap: () =>
+                        controller.toggleCategory(cat, !isSelected),
+                    child: Chip(
+                      label: Text(
+                        cat,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              isSelected ? Colors.white : Colors.purple,
+                        ),
+                      ),
+                      backgroundColor: isSelected
+                          ? Colors.purple
+                          : const Color(0xFFEDE7F6),
+                      materialTapTargetSize:
+                          MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const Spacer(),
+            // Save button
+            Obx(
+              () => PrimaryButton(
+                label: "저장하기",
+                onPressed: controller.hasSelection
+                    ? () {
+                        Get.snackbar("저장 완료", "선택된 카테고리가 저장되었습니다.");}
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
